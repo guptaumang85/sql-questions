@@ -271,4 +271,62 @@ Q30. Write an SQL query to find the npv of each query of the Queries table.Retur
 the result table in any order.
 A30. `SELECT q.*, coalesce(npv.npv,0) as Npv  from npv right join queries q on npv.id = q.id and npv.year = q.year`
 
+Q31. Same as Q30
+A31. Same as A30
 
+Q32. Write an SQL query to show the unique ID of each user, If a user does not have a unique ID replace just show null.
+A32. `select u.unique_id, e.name from employees e left join employeeUNI u on e.id = u.id;`
+
+Q33. Write an SQL query to report the distance travelled by each user.
+Return the result table ordered by travelled_distance in descending order, if two or more users travelled the same distance, order them by their name in ascending order.
+A33. `select u.name, coalesce(sum(r.distance),0) as travelled_distance from users u left join rides r on u.id = r.user_id group by u.name order by travelled_distance desc, u.name;`
+
+Q34. Write an SQL query to get the names of products that have at least 100 units ordered in February 2020 and their amount. Return result table in any order
+A34. `select p.product_name, sum(o.unit) as unit
+from
+Products p
+left join
+Orders o
+on p.product_id = o.product_id
+where month(o.order_date) = 2 and year(o.order_date) = 2020
+group by p.product_id
+having unit >= 100;`
+
+Q35. Write an SQL query to:
+- Find the name of the user who has rated the greatest number of movies. In case of a tie,
+return the lexicographically smaller user name.
+- Find the movie name with the highest average rating in February 2020. In case of a tie, return
+the lexicographically smaller movie name.
+A35 `SELECT name as results from (SELECT u.user_id, u.name, count(u.user_id) as movie_count from users u inner join movie_rating mr on u.user_id = mr.user_id group by u.user_id, u.name order by movie_count desc limit 1) first_query
+union SELECT title as results from (SELECT m.movie_id, m.title, avg(rating) as avg_rating from movie_rating mr join movies m on m.movie_id = mr.movie_id where mr.created_at like '2020-02-__' group by m.movie_id order by avg_rating desc, title asc limit 1) second_query`
+
+Q36. Write an SQL query to report the distance travelled by each user.
+Return the result table ordered by travelled_distance in descending order, if two or more users
+travelled the same distance, order them by their name in ascending order.
+A36. `SELECT u.id, u.name, coalesce(sum(distance),0) as travelled_distance from users u left join rides r on u.id = r.user_id group by u.id order by travelled_distance desc, name asc`
+
+Q37. Same as Q32
+A37. Same as A32
+
+Q38. Write an SQL query to find the id and the name of all students who are enrolled in departments that no longer exist.
+A38. `SELECT id,name from students where department_id not in (SELECT id from departments)`
+
+Q39. Write an SQL query to report the number of calls and the total call duration between each pair of distinct persons (person1, person2) where person1 < person2.
+A39. `select t.person1, t.person2, count(*) as call_count, sum(t.duration) as
+total_duration
+from
+(select duration,
+case when from_id < to_id then from_id else to_id end as person1,
+case when from_id > to_id then from_id else to_id end as person2
+from Calls) t
+group by t.person1, t.person2;`
+
+Q40. Same as Q23
+A40. Same as A23
+
+Q41. Write an SQL query to report the number of cubic feet of volume the inventory occupies in each warehouse.
+A41. `SELECT name, sum(units*length*width*height) as volume from warehouse w join products p on w.product_id = p.product_id group by name`
+
+
+Q42. Write an SQL query to report the difference between the number of apples and oranges sold each day. Return the result table ordered by sale_date.
+A42. `SELECT q.sale_date, (q.apples_sold - q.oranges_sold) as diff from (SELECT sale_date, max(case when fruit = 'apples' then sold_num else 0 end) as apples_sold,`
