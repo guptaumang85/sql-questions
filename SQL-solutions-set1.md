@@ -330,3 +330,28 @@ A41. `SELECT name, sum(units*length*width*height) as volume from warehouse w joi
 
 Q42. Write an SQL query to report the difference between the number of apples and oranges sold each day. Return the result table ordered by sale_date.
 A42. `SELECT q.sale_date, (q.apples_sold - q.oranges_sold) as diff from (SELECT sale_date, max(case when fruit = 'apples' then sold_num else 0 end) as apples_sold,`
+
+
+Q43. Write an SQL query to report the fraction of players that logged in again on the day after the day they
+first logged in, rounded to 2 decimal places. In other words, you need to count the number of players
+that logged in for at least two consecutive days starting from their first login date, then divide that
+number by the total number of players.
+A43. `SELECT round(count(distinct player_id)/(select count(distinct player_id) from activity), 2) as fraction from (SELECT *, date_add(event_date, interval 1 day) next_date, lead(event_date) over (partition by player_id order by event_date) as next_record from activity) q
+    where q.next_record = q.next_date`
+
+
+Q44.Write an SQL query to report the managers with at least five direct reports. Return the result table in any order
+A44. `SELECT name from employee where id = (SELECT managerId from employee group by managerId having count(managerId) = 5)`
+
+Q45.Write an SQL query to report the respective department name and number of students majoring in each department for all departments in the Department table (even ones with no current students). Return the result table ordered by student_number in descending order. In case of a tie, order them by dept_name alphabetically
+A45. `SELECT d.dept_name, coalesce(count(student_id),0) as student_number from department d left join student s on d.dept_id = s.dept_id group by d.dept_name order by student_number desc, d.dept_name asc`
+
+Q46. Write an SQL query to report the customer ids from the Customer table that bought all the products in the Product table. Return the result table in any order.
+A46. `select customer_id from customer group by customer_id having count(distinct product_key)=(select count(*) from product);`
+
+Q47. Write an SQL query that reports the most experienced employees in each project. In case of a tie, report all employees with the maximum number of experience years.
+A47. `select t.project_id, t.employee_id from 
+(SELECT p.project_id, e.employee_id, dense_rank() over ( partition by project_id order by e.experience_years desc) as r from project p inner join employee e
+on p.employee_id = e.employee_id) t
+where r = 1`
+
