@@ -355,3 +355,13 @@ A47. `select t.project_id, t.employee_id from
 on p.employee_id = e.employee_id) t
 where r = 1`
 
+Q48. Write an SQL query that reports the books that have sold less than 10 copies in the last year, excluding books that have been available for less than one month from today. Assume today is 2019-06-23.
+A48. `select t1.book_id, t1.name from ( (select book_id, name from Books where available_from < '2019-05-23') t1 left join (select book_id, sum(quantity) as quantity from Orders where dispatch_date > '2018-06-23' and dispatch_date<= '2019-06-23' group by book_id having quantity < 10) t2 on t1.book_id = t2.book_id
+);`
+
+Q49. Write a SQL query to find the highest grade with its corresponding course for each student. In case of a tie, you should find the course with the smallest course_id. Return the result table ordered by student_id in ascending order.
+A49. `SELECT q.student_id, q.course_id, q.grade from (SELECT student_id, course_id, grade, row_number() over (partition by student_id order by grade desc, course_id) as r from enrollments) q where q.r = 1`
+
+Q50. Each row is a record of a finished match between two different teams. Teams host_team and guest_team are represented by their IDs in the Teams table (team_id), and they scored host_goals and guest_goals goals, respectively. The winner in each group is the player who scored the maximum total points within the group. In the case of a tie, the lowest player_id wins. Write an SQL query to find the winner in each group.Return the result table in any order.
+A50. `select t2.group_id, t2.player_id from
+( select t1.group_id, t1.player_id, dense_rank() over(partition by group_id order by score desc, player_id) as r from ( select p.*, case when p.player_id = m.first_player then m.first_score when p.player_id = m.second_player then m.second_score end as score from Players p, Matches m where player_id in (first_player, second_player) ) t1 ) t2 where r = 1;`
