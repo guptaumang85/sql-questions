@@ -55,3 +55,36 @@ SELECT q.seat_id from (SELECT *, lag(free) over () as prev, lead(free) over () a
 	WHERE q.free = 1 AND ((q.prev is null and q.next = 1) or (q.prev = 1 AND q.next is null) or (q.prev=1 AND q.next=1)
 		or q.prev=0 AND q.next=1)
 ```
+
+59. Write an SQL query to report the names of all the salespersons who did not have any orders related to
+the company with the name "RED". Return the result table in any order.
+
+`SELECT sp.name from SalesPerson sp where sp.sales_id not in (SELECT sales_id FROM orders o join company c on o.com_id = c.com_id where c.name = 'RED')`
+
+60. Write an SQL query to report for every three line segments whether they can form a triangle. Return the result table in any order.
+
+`SELECT *, CASE when x + y > z AND y + z > x AND x + z > y then 'Yes' ELSE 'NO' END as triangle FROM triangle`
+
+61. Write an SQL query to report the shortest distance between any two points from the Point table.
+The query result format is in the following example.
+
+`SELECT abs(p1.x - p2.x) as shortest from point p1 join point p2 on p1.x != p2.x order by shortest asc limit 1`
+
+62. Write a SQL query for a report that provides the pairs (actor_id, director_id) where the actor has
+cooperated with the director at least three times. Return the result table in any order.
+
+`SELECT actor_id, director_id from ActorDirector GROUP BY actor_id, director_id having count(*) >= 3`
+
+63. Write an SQL query that reports the product_name, year, and price for each sale_id in the Sales table. Return the resulting table in any order.
+
+`SELECT product_name, year, price FROM sales s join product p on s.product_id = p.product_id`
+
+64. Write an SQL query that reports the average experience years of all the employees for each project,
+rounded to 2 digits. Return the result table in any order.
+
+`SELECT project_id, round(avg(experience_years),2) from project p join employee e on p.employee_id = e.employee_id GROUP BY project_id`
+
+65. Write an SQL query that reports the best seller by total sales price, If there is a tie, report them all. Return the result table in any order.
+
+`SELECT seller_id FROM sales group by seller_id having SUM(price) = (SELECT SUM(price) as total_price FROM sales group by seller_id order by total_price desc limit 1)`
+
